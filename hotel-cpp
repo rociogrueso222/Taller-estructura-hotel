@@ -1,0 +1,128 @@
+#include <iostream>
+using namespace std;
+
+struct Habitacion
+{
+    int numero;
+    int categoria;
+    Habitacion *izquierda;
+    Habitacion *derecha;
+
+    Habitacion(int num, int cat) : numero(num), categoria(cat), izquierda(nullptr), derecha(nullptr) {}
+};
+
+class Arbol
+{
+public:
+    Arbol() : raiz(nullptr) {}
+
+    ~Arbol()
+    {
+        liberarMemoria(raiz);
+    }
+
+    void aggHabitacion(int numero, int categoria)
+    {
+        raiz = agregar(raiz, numero, categoria);
+    }
+
+    void mostrarHabitaciones()
+    {
+        mostrar(raiz);
+    }
+
+private:
+    Habitacion *raiz;
+
+    Habitacion *agregar(Habitacion *nodo, int numero, int categoria, int prevCat = -1)
+    {
+        if (nodo == nullptr)
+        {
+            return new Habitacion(numero, (prevCat == categoria) ? categoria - 1 : categoria);
+        }
+
+        if (categoria >= nodo->categoria)
+        {
+            nodo->izquierda = agregar(nodo->izquierda, numero, categoria, nodo->categoria);
+        }
+        else
+        {
+            nodo->derecha = agregar(nodo->derecha, numero, categoria, prevCat);
+        }
+
+        return nodo;
+    }
+
+    void mostrar(Habitacion *nodo)
+    {
+        if (nodo == nullptr)
+        {
+            return;
+        }
+
+        mostrar(nodo->izquierda);
+        cout << "Habitacion " << nodo->numero << " - Categoria " << nodo->categoria << endl;
+        mostrar(nodo->derecha);
+    }
+
+    void liberarMemoria(Habitacion *nodo)
+    {
+        if (nodo == nullptr)
+        {
+            return;
+        }
+
+        liberarMemoria(nodo->izquierda);
+        liberarMemoria(nodo->derecha);
+        delete nodo;
+    }
+};
+
+int main()
+{
+    Arbol arbol;
+
+    int opcion;
+    int numero, categoria;
+
+    do
+    {
+        cout << "1. Agregar habitacion" << endl;
+        cout << "2. Mostrar habitaciones de la mas lujosa a la menos" << endl;
+        cout << "3. Salir" << endl;
+        cout << "Selecciona una opcion: ";
+        cin >> opcion;
+
+        switch (opcion)
+        {
+        case 1:
+            cout << "Ingrese el numero de la habitacion: ";
+            cin >> numero;
+            cout << "Ingrese la categoria de la habitacion: ";
+            cin >> categoria;
+            if (categoria < 1 || categoria > 50)
+            {
+                cout << "La categoria debe estar en el rango de 1 a 50." << endl;
+            }
+            else
+            {
+                arbol.aggHabitacion(numero, categoria);
+            }
+            break;
+
+        case 2:
+            cout << "Habitaciones de la mas lujosa a la menos:" << endl;
+            arbol.mostrarHabitaciones();
+            break;
+
+        case 3:
+            cout << "Saliendo del programa." << endl;
+            break;
+
+        default:
+            cout << "Opcion no valida. Intentelo de nuevo." << endl;
+        }
+    } while (opcion != 3);
+
+    return 0;
+}
